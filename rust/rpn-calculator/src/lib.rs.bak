@@ -1,0 +1,33 @@
+#[derive(Debug)]
+pub enum CalculatorInput {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Value(i32),
+}
+
+pub fn evaluate(inputs: &[CalculatorInput]) -> Option<i32> {
+    let mut stack:Vec<i32> = Vec::with_capacity(4);
+    for input in inputs {
+        let to_push: Option<i32>;
+        match input {
+            CalculatorInput::Add => to_push = Some(stack.pop()? + stack.pop()?),
+            CalculatorInput::Subtract => to_push = Some(-stack.pop()? + stack.pop()?),
+            CalculatorInput::Multiply => to_push = Some(stack.pop()? * stack.pop()?),
+            CalculatorInput::Divide => {
+                let bottom = stack.pop()?;
+                to_push = stack.pop()?.checked_div(bottom);
+            }
+            CalculatorInput::Value(val) => to_push = Some(*val),
+        }
+        match to_push {
+            Some(value) => stack.push(value),
+            None => return None
+        }
+    }
+    if stack.len() == 1 {
+        return Some(stack[0])
+    }
+    None
+}
